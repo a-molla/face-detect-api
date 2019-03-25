@@ -39,7 +39,7 @@ app.post('/signin', (req,res) => {
 
     if(req.body.email === database.users[0].email &&
         req.body.password === database.users[0].password){
-            res.json('success');
+            res.json(database.users[0]);
         }else{
             res.status(400).json('error loggin in');
         }
@@ -66,12 +66,13 @@ app.post('/register', (req, res) => {
     res.send(user);
 })
 
-app.put('/image/:id', (req,res) => {
-    const { id } = req.params;
+app.put('/image/', (req,res) => {
+    const { id } = req.body;
     let found = true;
 
     database.users.forEach(user => {
         if(user.id == id){
+            console.log(user.name)
             found = true;
             user.entries++;
             return res.json(user.entries);
