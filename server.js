@@ -5,7 +5,7 @@ const cors = require('cors');
 const knex = require('knex');
 
 
-const postgres = knex({
+const db = knex({
     client: 'pg',
     connection: {
         host: '127.0.0.1',
@@ -15,30 +15,8 @@ const postgres = knex({
     }
 })
 
-console.log(postgres.select('*').from('users'))
-
 const app = express();
 
-const database = {
-    users:[
-        {
-            id: '123',
-            name: 'john',
-            email: 'john@gmail.com',
-            password: 'pass',
-            entries : 0,
-            joined: new Date()
-        },
-        {
-            id: '1234',
-            name: 'sally',
-            email: 'sally@gmail.com',
-            password: 'pass',
-            entries : 0,
-            joined: new Date()
-        }
-    ]
-}
 
 app.use(bodyParser.json())
 app.use(cors())
@@ -66,17 +44,17 @@ app.post('/register', (req, res) => {
         console.log(hash)
     })
 
-    let user = {
-        id: '125',
-        name: name,
+    db('users')
+    .returning('*')
+    .insert({
         email: email,
-        password: password,
-        entries : 0,
+        name: name,
         joined: new Date()
-    };
-
-    database.users.push(user);
-    res.send(user);
+    })
+    .then(response => {
+        res.json(response)
+    })
+    .catch(err => res.status(400).json('UNABLE TO REGISTER'))
 })
 
 app.put('/image/', (req,res) => {
