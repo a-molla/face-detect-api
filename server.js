@@ -12,8 +12,6 @@ const image = require('./controllers/image');
 
 const config = require('./config')
 
-console.log(process.env.POSTGRES_URL)
-
 const db = knex({
     client: 'pg',
     connection: {
