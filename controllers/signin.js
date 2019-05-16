@@ -1,11 +1,15 @@
-const handleSignin = (db, bcrypt) => (req, res) => {
+const jwt = require("jsonwebtoken");
+
+const handleSignin = (db, bcrypt, req, res) => {
   const { email, password } = req.body;
-  
+
+  // Validate format.
   if (!email || !password) {
-    return res.status(400).json("invalid credentials");
+    return Promise.reject("incorrect form submission");
   }
 
-  db.select("email", "hash")
+  return db
+    .select("email", "hash")
     .from("login")
     .where("email", "=", email)
     .then(data => {
@@ -15,17 +19,50 @@ const handleSignin = (db, bcrypt) => (req, res) => {
           .select("*")
           .from("users")
           .where("email", "=", email)
-          .then(user => {
-            res.json(user[0]);
-          })
-          .catch(err => res.status(400).json("UNABLE TO GET USER"));
+          .then(user => user[0])
+          .catch(err => Promise.reject("unable to retrieve user"));
       } else {
-        res.status(400).json("WRONG CREDENTIALS");
+        Promise.reject("incorrect credentials");
       }
     })
-    .catch(err => res.status(400).json("DENIED"));
+    .catch(err => Promise.reject("incorrect credentials"));
+};
+
+const getAuthTokenId = () => {
+  console.log("auth ok");
+};
+
+const signToken = email => {
+  const jwtPayload = { email };
+  return jwt.sign(jwtPayload, process.env.JWT_SECRET, { expiresIn: "2 days" });
+};
+
+const createSessions = user => {
+  const { email, id } = user;
+  const token = signToken(email);
+  return {
+    success: "true",
+    userId: id,
+    token: token
+  };
+};
+
+const signinAuthentication = (db, bcrypt) => (req, res) => {
+  const { authorization } = req.headers;
+  return authorization
+    ? getAuthTokenId()
+    : handleSignin(db, bcrypt, req, res)
+        .then(data => {
+          return data.id && data.email ? createSessions(data) : Promise.reject(data);
+        })
+        .then(session => {
+          res.json(session);
+        })
+        .catch(err => {
+          res.status(400).json("Issue signing in");
+        });
 };
 
 module.exports = {
-  handleSignin: handleSignin
+  signinAuthentication: signinAuthentication
 };

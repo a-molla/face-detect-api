@@ -20,7 +20,7 @@ const db = knex({
     }
 })
 
-db.select().from('users').then(data => console.log(data)).catch(error => console.log(error))
+//db.select().from('users').then(data => console.log(data)).catch(error => console.log(error))
 
 const app = express();
 
@@ -32,7 +32,7 @@ app.get('/', (req,res) => {
     res.send("Success!");
 })
 
-app.post('/signin', signin.handleSignin(db,bcrypt))
+app.post('/signin', signin.signinAuthentication(db,bcrypt))
 
 app.post('/register',register.handleRegister(db,bcrypt))
 
