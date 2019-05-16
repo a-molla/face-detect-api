@@ -12,7 +12,8 @@ services:
     volumes: ["./:/usr/src/smart-brain-api"]
     environment: 
       POSTGRES_URL: postgres://sally:secret@postgres:5432/smart-brain-docker
-    links: ["postgres"]
+      REDIS_HOST: redis://redis
+    links: ["postgres","redis"]
     # If not from a focker file
     # image: node:11.8.0
     # environment: 
@@ -31,4 +32,7 @@ services:
     build: ./postgres
     ports: ['5432:5432']
 
-
+  # Redis
+  redis:
+    image: redis
+    ports: ['6379:6379']
