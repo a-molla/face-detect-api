@@ -1,0 +1,13 @@
+
+GET http://localhost:3000/profile/1
+
+###
+
+POST http://localhost:3000/profile/1 HTTP/1.1
+content-Type: application/json
+
+{
+    "formInput": {
+    "name":"am2"
+    }
+}
